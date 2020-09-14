@@ -24,22 +24,26 @@ namespace kinopiletid
 
         private void pictureBox1_Click(object sender, EventArgs e)
         {
-
+            Form3 form3 = new Form3();
+            form3.Show();
         }
 
         private void pictureBox2_Click(object sender, EventArgs e)
         {
-
+            Form3 form3 = new Form3();
+            form3.Show();
         }
 
         private void pictureBox3_Click(object sender, EventArgs e)
         {
-
+            Form3 form3 = new Form3();
+            form3.Show();
         }
 
         private void pictureBox4_Click(object sender, EventArgs e)
         {
-
+            Form3 form3 = new Form3();
+            form3.Show();
         }
 
         private void pictureBox5_Click(object sender, EventArgs e)
