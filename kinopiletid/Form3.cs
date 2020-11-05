@@ -16,7 +16,7 @@ namespace kinopiletid
     public partial class Form3 : Form
     {
         public SqlConnection con = new SqlConnection(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\Database1.mdf;Integrated Security=True;Connect Timeout=30");
-        string name;
+        public string name, text;
         public Form3(string Name)
         {
             name = Name;
@@ -26,7 +26,6 @@ namespace kinopiletid
         {
             this.Close();
         }
-        List<string> arr_pilet;
         Image red = Image.FromFile(AppContext.BaseDirectory + "red.png");
         Image yellow = Image.FromFile(AppContext.BaseDirectory + "yellow.png");
         Image green = Image.FromFile(AppContext.BaseDirectory + "green.png");
@@ -93,11 +92,7 @@ namespace kinopiletid
             else
             {
                 _arr[tag[0], tag[1]].Image = yellow;
-                arr_pilet.Add("Pilet" + I.ToString() + "rida" + J.ToString() + "koht");
-
             }
-            I.Append(i);
-            J.Append(j);
         }
         private void label2_Click(object sender, EventArgs e)
         {
@@ -105,7 +100,6 @@ namespace kinopiletid
             if (vastus == DialogResult.Yes)
             {
                 int t = 0;
-                int[] I = { }, J = { };
 
                 for (int i = 0; i < 4; i++)
                 {
@@ -124,44 +118,10 @@ namespace kinopiletid
 
                                 con.Close();
                             }
-
-                            I.Append(i);
-                            J.Append(j);
                         }
                     }
                 }
-                try
-                {
-                    string mailAd = Interaction.InputBox("Sisesta e-mail", "Kuhu saada", "Aleksandr.Ivanov.230600@gmail.com");
-                    MailMessage mail = new MailMessage();
-                    SmtpClient stmpClient = new SmtpClient("smtp.gmail.com")
-                    {
-                        Port = 587,
-                        Credentials = new NetworkCredential("Aleksandr.Ivanov.230600@gmail.com", "55s95a87n89ja"),
-                        EnableSsl = true
-                    };
-                    mail.To.Add(mailAd);
-                    mail.From = new MailAddress("mr.voron.voron@mail.ru");
-                    mail.Subject = "Pilet";
-                    mail.Body = "";
-                    foreach (var item in arr_pilet)
-                    {
-                        Attachment data = new Attachment(item);
-                        mail.Attachments.Add(data);
-                    }
-                    stmpClient.Send(mail);
-                    foreach (var item in arr_pilet)
-                    {
-                        File.Delete(item);
-                    }
-                }
-                catch (Exception)
-                {
-                    foreach (var item in arr_pilet)
-                    {
-                        File.Delete(item);
-                    }
-                }
+                sendemail();
             }
             else
             {
@@ -176,7 +136,79 @@ namespace kinopiletid
                     }
                 }
             }
-        }
+            void sendemail()
+            {
+                try
+                {
+                    for (int i = 0; i < 4; i++)
+                    {
+                        for (int j = 0; j < 4; j++)
+                        {
+                            if (_arr[i, j].Image == red)
+                            {
+                                text += "Rida: " + (i + 1) + "; Koht: " + (j + 1) + "<br>";
+                            }
 
+                        }
+                    }
+                    string emaill = "";
+                    ShowInputDialog(ref emaill);
+                    MailAddress from = new MailAddress("aleksandr.ivanov.230600@gmail.com", "Pilets");
+                    MailAddress to = new MailAddress(emaill);
+                    MailMessage m = new MailMessage(from, to);
+                    m.Subject = "Pilets";
+                    m.Body = "<h1>See on teie pilet</h1>" + "<h1>Nimi film:</h1>" + name + "<h2>Koht:</h2>" + text;
+                    m.IsBodyHtml = true;
+                    SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587);
+                    smtp.Credentials = new NetworkCredential("aleksandr.ivanov.230600@gmail.com", "55s95a87n89ja");
+                    smtp.EnableSsl = true;
+                    smtp.Send(m);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Error Message");
+                }
+            }
+            
+            static DialogResult ShowInputDialog(ref string input)
+            {
+                System.Drawing.Size size = new System.Drawing.Size(200, 70);
+                Form inputBox = new Form();
+
+                inputBox.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+                inputBox.ClientSize = size;
+                inputBox.Text = "Email";
+
+                System.Windows.Forms.TextBox textBox = new TextBox();
+                textBox.Size = new System.Drawing.Size(size.Width - 10, 23);
+                textBox.Location = new System.Drawing.Point(5, 5);
+                textBox.Text = input;
+                inputBox.Controls.Add(textBox);
+
+                Button okButton = new Button();
+                okButton.DialogResult = System.Windows.Forms.DialogResult.OK;
+                okButton.Name = "okButton";
+                okButton.Size = new System.Drawing.Size(75, 23);
+                okButton.Text = "&OK";
+                okButton.Location = new System.Drawing.Point(size.Width - 80 - 80, 39);
+                inputBox.Controls.Add(okButton);
+
+                Button cancelButton = new Button();
+                cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+                cancelButton.Name = "cancelButton";
+                cancelButton.Size = new System.Drawing.Size(75, 23);
+                cancelButton.Text = "&Cancel";
+                cancelButton.Location = new System.Drawing.Point(size.Width - 80, 39);
+                inputBox.Controls.Add(cancelButton);
+
+                inputBox.AcceptButton = okButton;
+                inputBox.CancelButton = cancelButton;
+
+                DialogResult result = inputBox.ShowDialog();
+                input = textBox.Text;
+                return result;
+            }
+        }
     }
 }
+
